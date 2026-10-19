@@ -1,0 +1,40 @@
+# NGINX in front of Tomcat, on one Docker network with a fixed subnet (so addresses in the logs are predictable).
+# Each scenario in run-scenarios.sh sets these variables:
+#   UPSTREAM          what proxy_pass points at (default http://app:8080, the working setup)
+#   BIND_ADDR         Tomcat's Connector address ("" = every address, the default; 127.0.0.1 = cause 1)
+#   START_DELAY       seconds Tomcat waits before starting (the start-up race)
+#   CONNECT_TIMEOUT   proxy_connect_timeout (default 60s, as in NGINX; the dead-address contrast uses 3s)
+services:
+  app:
+    image: tomcat:11.0.27-jdk21
+    environment:
+      BIND_ADDR: ${BIND_ADDR:-}
+      START_DELAY: ${START_DELAY:-0}
+    volumes:
+      - ./app/ROOT:/usr/local/tomcat/webapps/ROOT:ro
+      - ./app/start.sh:/start.sh:ro
+    command: ["bash", "/start.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+    networks: [lab]
+
+  nginx:
+    image: nginx:1.30.6
+    environment:
+      UPSTREAM: ${UPSTREAM:-http://app:8080}
+      CONNECT_TIMEOUT: ${CONNECT_TIMEOUT:-60s}
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+    depends_on:
+      app:
+        condition: service_started
+    networks: [lab]
+
+networks:
+  lab:
+    ipam:
+      config:
+        - subnet: 10.199.33.0/24

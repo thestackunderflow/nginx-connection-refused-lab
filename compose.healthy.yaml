@@ -1,0 +1,6 @@
+# The start-up race fix: NGINX starts only after Tomcat answers its health check.
+services:
+  nginx:
+    depends_on:
+      app:
+        condition: service_healthy
