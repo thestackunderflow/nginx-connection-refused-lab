@@ -1,7 +1,8 @@
 # NGINX `connect() failed (111: Connection refused)`: three Docker causes, reproduced
 
 The lab behind the video "NGINX 502 connect() failed (111: Connection refused): 3 Docker Causes"
-(The Stack Underflow, How It Actually Works). NGINX 1.30.6 in front of Tomcat 11.0.27 on one Docker network.
+(The Stack Underflow, How It Actually Works): https://youtu.be/AEfWyQNrh9c
+NGINX 1.30.6 in front of Tomcat 11.0.27 on one Docker network.
 Everything runs in Docker; nothing is installed on your machine.
 
 ```
@@ -26,3 +27,8 @@ Files: `compose.yaml` (the setup, variables per scenario), `compose.healthy.yaml
 (binds Tomcat and delays its start), `nginx/templates/default.conf.template` (rendered by the nginx image's envsubst).
 Evidence of the run used in the video: `evidence/` (19 Oct 2026). Tests: `tests/` (red phase before the lab existed,
 then green).
+
+## Licence
+
+Lab code: Apache License 2.0 (`LICENSE`). NGINX, Tomcat, curl and Python run from their official Docker images
+under their own licences; nothing from them is copied into this repository.
